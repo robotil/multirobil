@@ -1,0 +1,260 @@
+<?xml version="1.0"?>
+<robot name="ptz" xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  <!-- "turret" -->
+  <property name="turret_radius" value="0.035" /> 
+  <property name="turret_height" value="0.010" />
+  <property name="turret_mass" value="0.1" /> <!-- in kg-->
+  <property name="turret_origin_x" value="0.073" /> <!--length -->
+  <property name="turret_origin_y" value="0.0" /> <!--Width - in the center-->
+  <property name="turret_origin_z" value="0.06" /> <!-- on Top --> 
+  <!-- Camera tilt link -->
+  <property name="cam_tilt_x_size" value="0.035" /> 
+  <property name="cam_tilt_y_size" value="0.037" /> 
+  <property name="cam_tilt_z_size" value="0.03" />
+	<property name="cam_tilt_mass" value="0.050" /> <!-- in kg-->
+  <!-- Camera link -->
+  <property name="camera_x_size" value="0.100" /> 
+  <property name="camera_y_size" value="0.070" /> 
+  <property name="camera_z_size" value="0.070" />
+	<property name="camera_mass" value="0.450" /> <!-- in kg-->
+	  <!-- Camera Lens -->
+  <property name="lens_radius" value="0.025" /> 
+  <property name="lens_height" value="0.005" />
+	<property name="lens_mass" value="0.010" /> <!-- in kg-->			
+ 
+  <macro name="cylinder_inertia" params="m r h">
+    <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
+              iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
+              izz="${m*r*r/2}" /> 
+  </macro>
+ 
+  <xacro:macro name="ptz" params="parent x_offset y_offset z_offset"> 
+  <link name="turret_base">
+    <collision>
+
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+				<cylinder length="${turret_height}" radius="${turret_radius}" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<cylinder length="${turret_height}" radius="${turret_radius}" />
+      </geometry>
+      <material name="grey"/>  
+
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${turret_mass}" />
+      <cylinder_inertia  m="${turret_mass}" r="${turret_radius}" h="${turret_height}" />
+    </inertial>
+  </link>
+  <joint name="joint_turret_base" type="continuous">
+    <parent link="${parent}"/>
+    <child link="turret_base"/>
+
+		<origin xyz="${x_offset} ${y_offset} ${turret_height/2 + z_offset}" rpy="0 0 0 " /> 
+		<axis xyz="0 0 1" rpy="0 0 0" />
+  </joint>
+  <transmission name="ptz_base_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_turret_base" />
+    <actuator name="$ptz_base_joint_motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <gazebo reference="turret_base">
+    <material>Gazebo/Grey</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+<!--end Display turret-->
+  <link name="cam_tilt_link">
+    <collision>
+
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+				<box size="${cam_tilt_x_size} ${cam_tilt_y_size} ${cam_tilt_z_size}" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="${cam_tilt_x_size} ${cam_tilt_y_size} ${cam_tilt_z_size}" />
+      </geometry>
+      <material name="DarkGray"/> 
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${ cam_tilt_mass}" />
+      <box_inertia  m="${cam_tilt_mass}" x="${cam_tilt_x_size}" y="${cam_tilt_y_size}" z="${cam_tilt_z_size}" />
+    </inertial>
+  </link>
+  <joint name="joint_cam_tilt_link" type="fixed">
+    <parent link="turret_base"/>
+    <child link="cam_tilt_link"/>
+    <origin xyz="0 0 ${turret_height/2 + cam_tilt_z_size/2}" rpy="0 0 0 " /> 
+  </joint>
+
+  <gazebo reference="cam_tilt_link">
+    <material>Gazebo/DarkGray</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+<!--end Display cam_tilt_link-->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+				<box size="${camera_x_size} ${camera_y_size} ${camera_z_size}" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="${camera_x_size} ${camera_y_size} ${camera_z_size}" />
+      </geometry>
+      <material name="grey"/> 
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${ camera_mass}" />
+      <box_inertia  m="${camera_mass}" x="${camera_x_size}" y="${camera_y_size}" z="${camera_z_size}" />
+    </inertial>
+  </link>
+  <joint name="joint_camera_link" type="continuous">
+    <parent link="cam_tilt_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0 0 ${cam_tilt_z_size/2 + camera_z_size/2 + 0.0075}" rpy="0 0 0 " /> 
+		<axis xyz="0 1 0" rpy="0 0 0" />
+  </joint>
+  <transmission name="ptz_camera_tilt_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_camera_link" />
+    <actuator name="$ptz_tilt_joint_motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <gazebo reference="camera_link">
+    <material>Gazebo/Grey</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+<!--end Just camera_link-->
+  <link name="lens_link">
+    <collision>
+
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+				<cylinder length="${lens_height}" radius="${lens_radius}" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<cylinder length="${lens_height}" radius="${lens_radius}" />
+      </geometry>
+      <material name="black"/> 
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${ camera_mass}" />
+				<cylinder_inertia  m="${lens_mass}" r="${lens_radius}" h="${lens_height}" />
+    </inertial>
+  </link>
+  <joint name="joint_lens_link" type="fixed">
+    <parent link="camera_link"/>
+    <child link="lens_link"/>
+    <origin xyz="${camera_x_size/2 + lens_height/2} 0 0" rpy="0 ${M_PI/2} 0 " /> 
+
+  </joint>
+
+  <gazebo reference="lens_link">
+    <material>Gazebo/Black</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+<!--end Display lens_link-->
+  <link name="sensor_link">
+    <collision>
+
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+				<cylinder length="0.01" radius="0.01" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<cylinder length="0.01" radius="0.01" />
+      </geometry>
+      <material name="black"/> 
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.001" />
+				<cylinder_inertia  m="0.001" r="0.01" h="0.01" />
+    </inertial>
+  </link>
+  <joint name="joint_sensor_link" type="fixed">
+    <parent link="lens_link"/>
+    <child link="sensor_link"/>
+    <origin xyz="0 0 0" rpy="0 -${M_PI/2} 0 " /> 
+
+  </joint>
+
+  <gazebo reference="sensor_link">
+    <material>Gazebo/Black</material>
+    <turnGravityOff>false</turnGravityOff>
+    <sensor type="camera" name="camera1">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.  
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>rgi/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+<!--end Display lens_link--> 
+  </xacro:macro>
+</robot>

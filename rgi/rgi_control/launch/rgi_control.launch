@@ -1,0 +1,12 @@
+<launch>  
+  <!-- load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find rgi_control)/config/joint_position_control.yaml" command="load" />
+    <!-- load the controllers -->
+    <node name="rgi_controller" pkg="controller_manager" type="spawner" output="screen" 
+      args="joint1_position_controller joint2_position_controller joint_state_controller" />
+ 
+    <!-- publish all the frames to TF -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+      <param name="publish_frequency" value="50"/> <!-- Hz -->
+    </node>
+</launch>
