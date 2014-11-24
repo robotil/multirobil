@@ -1,0 +1,7 @@
+Install: http://wiki.ros.org/ar_pose
+Install: http://wiki.ros.org/hector_quadrotor
+Get Multi-TAO from Cogniteam, you will need a licence for every computer
+
+Bulid all the packeges, ar_pose, hector, multi-tao and mobil
+
+Run roslaunch mobil mobil.launch
