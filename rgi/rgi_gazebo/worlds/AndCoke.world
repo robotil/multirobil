@@ -152,7 +152,7 @@
           <geometry>
             <mesh>
               <scale>0.407 0.57 0.457944</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/base_link.stl</uri>
+              <uri>model://rgi/meshes/base_link.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -167,7 +167,7 @@
           <geometry>
             <mesh>
               <scale>0.407 0.57 0.457944</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/top_plate.stl</uri>
+              <uri>model://rgi/meshes/top_plate.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -238,7 +238,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -313,7 +313,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -388,7 +388,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -463,7 +463,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -538,7 +538,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
@@ -613,7 +613,7 @@
           <geometry>
             <mesh>
               <scale>0.309423 0.437445 0.309423</scale>
-              <uri>/home/manora/catkin_ws/src/rgi/rgi_description/meshes/wheel.stl</uri>
+              <uri>model://rgi/meshes/wheel.stl</uri>
             </mesh>
           </geometry>
           <material>
