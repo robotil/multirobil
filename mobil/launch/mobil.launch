@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<launch>
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+	    <arg name="world_name" value="$(find mobil)/worlds/empty.world"/>
+  	</include>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find mobil)/launch/mobil_config.rviz"/>
+
+	<node name="shared_memory" pkg="teamwork" type="shared_memory" output="screen"/>
+
+	<group ns="Bobcat_0">
+    	<param name="tf_prefix" value="Bobcat_0"/>
+    	<param name="robot_description" textfile="$(find mobil)/urdf/cube_Robot.urdf"/>
+
+    	<node pkg="tf" type="static_transform_publisher" name="cube_link_broadcaster" args="0 0 0 0 0 0 /world /Bobcat_0/odom 100" />
+    	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+    	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"  args="-file $(find mobil)/urdf/cube_Robot.urdf -urdf -x 0 -y 0 -z 0 -Y 0 -model Bobcat_0" />
+    	
+    	<node name="MobilBobcat" pkg="mobil" type="mobil_dm" output="screen" args="Bobcat 0"/>
+	</group> <!-- End of cube -->
+
+	<group ns="UAV_1">
+	    <param name="tf_prefix" value="UAV_1"/>
+	    <param name="robot_description" textfile="$(find hector_quadrotor_description)/urdf/quadrotor_with_cam.gazebo.xacro"/>
+	    
+	    <param name="marker_fn" type="string" value="/4x4_2"/>
+	    <param name="estimated_fn" type="string" value="/uav_estimated_location"/>
+		<param name="world_fn" type="string" value="Bobcat_0/cube_base_link"/>
+		   
+	    <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" >
+	      	<arg name="model" value="$(find hector_quadrotor_description)/urdf/quadrotor_with_cam.gazebo.xacro"/>
+	      	<arg name="x" value="-2.5"/>
+			<arg name="y" value="-0.5"/>
+	      	<arg name="z" value="0.3"/>
+	    </include>   
+	    
+	    <!--node pkg="tf" type="static_transform_publisher" name="tmp_broadcaster" args="0 0 0 0 0 0 /base_stabilized /base_link 100" /-->
+	    
+		<node name="ar_pose" pkg="ar_pose" type="ar_multi" respawn="false" output="screen">
+			<remap from="/usb_cam/camera_info" to="/UAV_1/front_cam/camera/camera_info"/>
+			<remap from="/usb_cam/image_raw" to="/UAV_1/front_cam/camera/image"/>
+			<param name="marker_pattern_list" type="string" value="$(find mobil)/data/object_4x4"/>
+			<param name="threshold" type="int" value="40"/>
+		</node>
+		
+		<node pkg="mobil" type="shared_coordinates_node" name="shared_coordinates" output="screen" args="UAV_1">
+		    <param name="marker_fn" type="string" value="4x4_2"/>
+		    <param name="estimated_fn" type="string" value="uav_estimated_location"/>
+			<param name="world_fn" type="string" value="Bobcat_0/cube_base_link"/>
+			<param name="anchor_fn" type="string" value="Bobcat_0/cube_4x4_2_link"/>
+			<param name="robot_fn" type="string" value="base_link"/>
+			<param name="magnetic_topic" type="string" value="magnetic"/>
+			<param name="correctionXY" type="double" value="0.0"/>
+			<param name="correctionZ" type="double" value="0.0"/>
+		</node>
+
+		<node name="MobilUAV" pkg="mobil" type="mobil_dm" output="screen" args="UAV 1"/>
+	</group> <!-- End of uav -->
+</launch>
